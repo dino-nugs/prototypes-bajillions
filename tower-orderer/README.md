@@ -2,6 +2,11 @@
 
 A simple interactive game where you need to arrange towers in order from smallest to largest. Try to put them in the correct order by dragging them left and right!
 
+## Play Online
+
+You can play this game online at:
+https://dino-nugs.github.io/prototypes-bajillions/tower-orderer/
+
 ## How to Play
 
 1. You'll see 5 towers of different heights
