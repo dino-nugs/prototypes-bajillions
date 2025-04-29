@@ -10,17 +10,12 @@ class TowerGame {
                 preload: this.preload.bind(this),
                 create: this.create.bind(this),
                 update: this.update.bind(this)
-            },
-            physics: {
-                default: 'arcade',
-                arcade: {
-                    debug: false
-                }
             }
         };
         
         this.towers = [];
         this.selectedTower = null;
+        this.dragging = false;
         this.game = new Phaser.Game(this.gameConfig);
         
         // Setup check button click listener outside of Phaser
@@ -45,36 +40,68 @@ class TowerGame {
             this.createTower(height, positions[index]);
         });
         
-        // Setup input handling with improved drag functionality
+        // Simple mouse-based drag instead of Phaser's built-in drag
         this.input = this.scene.input;
         
-        this.input.on('dragstart', (pointer, gameObject) => {
-            gameObject.setTint(0x999999);
-            this.selectedTower = gameObject;
-            this.scene.children.bringToTop(gameObject);
+        this.input.on('pointerdown', (pointer) => {
+            if (this.dragging) return;
+            
+            // Find if we clicked on a tower
+            for (let tower of this.towers) {
+                const bounds = tower.getBounds();
+                if (pointer.x >= bounds.left && pointer.x <= bounds.right && 
+                    pointer.y >= bounds.top && pointer.y <= bounds.bottom) {
+                    this.selectedTower = tower;
+                    this.dragging = true;
+                    
+                    // Change appearance to indicate selection
+                    this.highlightTower(tower, true);
+                    this.scene.children.bringToTop(tower);
+                    break;
+                }
+            }
         });
         
-        this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-            gameObject.x = dragX;
-            gameObject.y = gameObject.getData('originalY');
+        this.input.on('pointermove', (pointer) => {
+            if (this.dragging && this.selectedTower) {
+                this.selectedTower.x = pointer.x;
+            }
         });
         
-        this.input.on('dragend', (pointer, gameObject) => {
-            gameObject.clearTint();
-            
-            // Snap to nearest valid position
-            const positions = [150, 250, 350, 450, 550];
-            const closestPosition = positions.reduce((prev, curr) => {
-                return Math.abs(curr - gameObject.x) < Math.abs(prev - gameObject.x) ? curr : prev;
-            });
-            
-            gameObject.x = closestPosition;
-            this.selectedTower = null;
+        this.input.on('pointerup', () => {
+            if (this.dragging && this.selectedTower) {
+                // Snap to nearest valid position
+                const positions = [150, 250, 350, 450, 550];
+                const closestPosition = positions.reduce((prev, curr) => {
+                    return Math.abs(curr - this.selectedTower.x) < Math.abs(prev - this.selectedTower.x) ? curr : prev;
+                });
+                
+                this.selectedTower.x = closestPosition;
+                
+                // Remove highlight
+                this.highlightTower(this.selectedTower, false);
+                
+                this.selectedTower = null;
+                this.dragging = false;
+            }
+        });
+    }
+    
+    highlightTower(tower, highlight) {
+        // Change the color of all blocks in the tower
+        tower.each((block) => {
+            if (block.type === 'Rectangle') {
+                if (highlight) {
+                    block.fillColor = 0x666699; // Highlight color
+                } else {
+                    block.fillColor = 0x3f51b5; // Original color
+                }
+            }
         });
     }
     
     update() {
-        // Phaser's update loop - not needed for this simple game
+        // Not needed for this simple game
     }
     
     createTower(height, xPosition) {
@@ -103,8 +130,6 @@ class TowerGame {
             tower.add(block);
         }
         
-        // Make the tower draggable
-        this.scene.input.setDraggable(tower);
         this.towers.push(tower);
         return tower;
     }
