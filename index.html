@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bajillions Game Prototypes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #333;
+        }
+        .game-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .game-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .game-title {
+            font-size: 1.4em;
+            margin-top: 0;
+        }
+        .play-button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .play-button:hover {
+            background-color: #45a049;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Bajillions Game Prototypes</h1>
+        <p>A collection of simple, interactive game prototypes built with web technologies.</p>
+    </header>
+    
+    <main>
+        <ul class="game-list">
+            <li class="game-card">
+                <h2 class="game-title">Tower Ordering Game</h2>
+                <p>Arrange towers from smallest to largest by dragging them. Can you put them in the correct order?</p>
+                <a href="tower-orderer/" class="play-button">Play Now</a>
+            </li>
+            
+            <!-- More games will be added here as li elements -->
+        </ul>
+    </main>
+    
+    <footer>
+        <p>Created with ❤️ using web technologies | Hosted on GitHub Pages</p>
+    </footer>
+</body>
+</html> 
