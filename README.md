@@ -1,10 +1,6 @@
-# Bajillions Game Prototypes
-
-A collection of simple, interactive game prototypes built with web technologies. Each game is stored in its own subfolder and can be played directly through GitHub Pages.
-
 ## Play the Games
 
-You can access all games through our GitHub Pages site:
+Access to all games:
 https://dino-nugs.github.io/prototypes-bajillions/
 
 ### Available Games
@@ -13,11 +9,13 @@ https://dino-nugs.github.io/prototypes-bajillions/
 
 ## For Developers
 
+-
+
 ### Repository Structure
 
 Each game is contained in its own subfolder:
 
-- `tower-orderer/` - A game about arranging towers in order from smallest to largest.
+- `tower-orderer/` - A game about ordering towers
 - (More games will be added in the future)
 
 ### Technologies Used
