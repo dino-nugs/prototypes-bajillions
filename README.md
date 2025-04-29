@@ -3,10 +3,6 @@
 Access to all games:
 https://dino-nugs.github.io/prototypes-bajillions/
 
-## For Developers
-
--
-
 ### Repository Structure
 
 Each game is contained in its own subfolder:
