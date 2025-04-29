@@ -3,10 +3,6 @@
 Access to all games:
 https://dino-nugs.github.io/prototypes-bajillions/
 
-### Available Games
-
-1. [Tower Ordering Game](https://dino-nugs.github.io/prototypes-bajillions/tower-orderer/) - Arrange towers from smallest to largest by dragging them.
-
 ## For Developers
 
 -
