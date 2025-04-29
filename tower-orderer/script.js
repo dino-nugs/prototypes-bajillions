@@ -7,8 +7,15 @@ class TowerGame {
             parent: 'phaser-game',
             backgroundColor: '#f0f0f0',
             scene: {
+                preload: this.preload.bind(this),
                 create: this.create.bind(this),
                 update: this.update.bind(this)
+            },
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    debug: false
+                }
             }
         };
         
@@ -20,6 +27,10 @@ class TowerGame {
         document.getElementById('check-button').addEventListener('click', () => {
             this.checkAnswer();
         });
+    }
+    
+    preload() {
+        // Load any assets if needed
     }
     
     create() {
@@ -34,18 +45,21 @@ class TowerGame {
             this.createTower(height, positions[index]);
         });
         
-        // Enable drag-and-drop
-        this.scene.input.on('dragstart', (pointer, gameObject) => {
+        // Setup input handling with improved drag functionality
+        this.input = this.scene.input;
+        
+        this.input.on('dragstart', (pointer, gameObject) => {
             gameObject.setTint(0x999999);
             this.selectedTower = gameObject;
+            this.scene.children.bringToTop(gameObject);
         });
         
-        this.scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+        this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
             gameObject.x = dragX;
             gameObject.y = gameObject.getData('originalY');
         });
         
-        this.scene.input.on('dragend', (pointer, gameObject) => {
+        this.input.on('dragend', (pointer, gameObject) => {
             gameObject.clearTint();
             
             // Snap to nearest valid position
@@ -64,25 +78,22 @@ class TowerGame {
     }
     
     createTower(height, xPosition) {
-        const towerWidth = 60;
-        const blockHeight = 40;
+        const blockSize = 50; // Uniform square size for blocks
         const yBase = this.game.config.height - 50;
         
         // Create a container for the tower
         const tower = this.scene.add.container(xPosition, yBase);
-        tower.setSize(towerWidth, height * blockHeight);
-        tower.setInteractive({ draggable: true });
+        tower.setSize(blockSize, height * blockSize);
         tower.setData('height', height);
         tower.setData('originalY', yBase);
         
         // Create blocks for the tower
         for (let i = 0; i < height; i++) {
-            const blockWidth = towerWidth - (height - i) * 5;
             const block = this.scene.add.rectangle(
                 0, 
-                -i * blockHeight, 
-                blockWidth, 
-                blockHeight - 4, 
+                -i * blockSize - blockSize/2, // Center the block vertically within its position
+                blockSize, 
+                blockSize, 
                 0x3f51b5
             );
             
@@ -92,6 +103,8 @@ class TowerGame {
             tower.add(block);
         }
         
+        // Make the tower draggable
+        this.scene.input.setDraggable(tower);
         this.towers.push(tower);
         return tower;
     }
