@@ -1,18 +1,17 @@
-## Play the Games
+## Play the Game
 
-Access to all games:
-https://dino-nugs.github.io/prototypes-bajillions/
+Access the game here:
+https://dino-nugs.github.io/prototypes-bajillions/build-stairs-orderer/
 
 ### Repository Structure
 
 Each game is contained in its own subfolder:
 
-- `tower-orderer/` - A game about ordering towers
-- (More games will be added in the future)
+- `build-stairs-orderer/` - Drag the towers to build a staircase from smallest to largest.
 
 ### Technologies Used
 
-These prototypes use various web technologies including:
+This prototype uses various web technologies including:
 - HTML5/CSS3
 - JavaScript
 - Game libraries like Phaser.js
