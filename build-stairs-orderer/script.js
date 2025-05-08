@@ -110,10 +110,10 @@ function create() {
                     const size = gameObject.getData('size');
                     // The top edge of the tower is at y = -size * TOWER_UNIT
                     // Place kiki.png so its bottom is 5px above that, then move up by 30px
-                    const kikiY = -size * TOWER_UNIT - 5 - kikiHeight / 2 - 30;
+                    const kikiY = -size * TOWER_UNIT - 5 - kikiHeight / 2 - 40;
                     const kiki = this.add.image(0, kikiY, 'kiki');
                     kiki.setOrigin(0.5, 0.5);
-                    kiki.setDisplaySize(40, 40);
+                    kiki.setDisplaySize(65, 65);
                     gameObject.add(kiki);
                     gameObject.setData('kikiSprite', kiki);
                 }
@@ -247,7 +247,7 @@ function update() {}
 
 function checkWin() {
     if (this.nextSlot === 5) {
-        document.getElementById('message').textContent = 'Congratulations! You built the staircase!';
+        document.getElementById('message').textContent = 'Stairs completed!';
         document.getElementById('message').className = 'success';
         document.getElementById('reset-button').style.display = 'inline-block';
     }
