@@ -1,9 +1,9 @@
-## Play the Game
+## Play Stuff
 
 See all available prototypes here:
 https://dino-nugs.github.io/prototypes-bajillions
 
-### Repository Structure
+### Repo Structure
 
 Each prototype is contained in its own subfolder:
 
@@ -16,6 +16,7 @@ These prototypes use various web technologies including:
 - HTML5/CSS3
 - JavaScript
 - Game libraries like Phaser.js
+- Cursor (cannot stress enough that I am not a developer)
 
 ### GitHub Pages Deployment
 
