@@ -3,13 +3,6 @@
 See all available prototypes here:
 https://dino-nugs.github.io/prototypes-bajillions
 
-### Repo Structure
-
-Each prototype is contained in its own subfolder:
-
-- `build-stairs-orderer/` - Select the correct tower to complete the staircase
-- `build-stairs-counting/` - Select the correct number to complete the staircase
-
 ### Technologies Used
 
 These prototypes use various web technologies including:
