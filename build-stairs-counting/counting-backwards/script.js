@@ -1,20 +1,23 @@
 // Phaser config
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 400, // Shorter height
+    width: 1100, // Wider for 10 towers
+    height: 500, // Taller to fit tallest tower
     backgroundColor: '#e0e7ef',
     parent: 'phaser-game',
     scene: { preload, create, update }
 };
 
-const SLOT_Y = 350; // Lowered by 30px
-const SLOT_X_START = 200;
-const SLOT_X_GAP = 100;
-const TOWER_WIDTH = 50;
-const TOWER_UNIT = 50;
-const TOWER_COLOR = '#8ecae6';
-const TOWER_COLOR_CORRECT = 0x4CAF50; // Green
+const SLOT_Y = 380; // Vertical positioning
+const SLOT_X_START = 60;
+const SLOT_X_GAP = 60; // Closer together
+const TOWER_WIDTH = 36; // Narrower towers
+const TOWER_UNIT = 32; // Shorter blocks
+const TOWER_COLOR_1 = '#8ecae6'; // Blue
+const TOWER_COLOR_2 = '#4CAF50'; // Green
+const TOWER_COLOR_CORRECT = 0x4CAF50; // Green for win effect
+const NUM_TOWERS = 10;
+const SLOT_X_OFFSET = -150; // move left by 100px
 
 let game = new Phaser.Game(config);
 
@@ -25,7 +28,7 @@ function preload() {
 function create() {
     this.towers = [];
     this.slotLines = [];
-    this.placed = [null, null, null, null, null];
+    this.placed = Array(NUM_TOWERS).fill(null);
     this.nextSlot = 0;
     this._fadeMsgTimeout = null;
     this.lastChoices = [];
@@ -34,7 +37,7 @@ function create() {
     if (!document.getElementById('instruction-text')) {
         const instr = document.createElement('div');
         instr.id = 'instruction-text';
-        instr.textContent = 'Build the staircase by choosing the next number!';
+        instr.textContent = 'Build a staircase that goes down to 1';
         instr.style.fontSize = '24px';
         instr.style.fontWeight = 'bold';
         instr.style.color = '#333';
@@ -45,13 +48,13 @@ function create() {
     }
 
     // Center the slots
-    const trayTotalWidth = (5 - 1) * SLOT_X_GAP;
-    const trayStartX = config.width / 2 - trayTotalWidth / 2;
+    const trayTotalWidth = (NUM_TOWERS - 1) * SLOT_X_GAP;
+    const trayStartX = config.width / 2 - trayTotalWidth / 2 + SLOT_X_OFFSET;
 
     // Create slots (as horizontal lines)
-    for (let i = 0; i < 5; i++) {
-        let color = 0x2196f3; // All blue, but only one visible
-        let alpha = (i === 0) ? 1 : 0;
+    for (let i = 0; i < NUM_TOWERS; i++) {
+        let color = (i === 0) ? 0xFFA500 : 0x2196f3; // First slot orange, others blue
+        let alpha = (i === 0) ? 1 : 0.3;
         let slot = this.add.line(
             trayStartX + i * SLOT_X_GAP,
             SLOT_Y,
@@ -62,6 +65,7 @@ function create() {
         ).setLineWidth(6);
         slot.setData('index', i);
         slot.setAlpha(alpha);
+        slot.setStrokeStyle(6, color);
         this.slotLines.push(slot);
     }
 
@@ -79,14 +83,15 @@ function create() {
     btnContainer.innerHTML = '';
 
     // Start the game logic
-    this.availableNumbers = [1,2,3,4,5];
+    this.availableNumbers = [];
+    for (let i = NUM_TOWERS; i >= 1; i--) this.availableNumbers.push(i);
     this.showNextChoices = () => {
         btnContainer.innerHTML = '';
-        if (this.nextSlot >= 5) return;
+        if (this.nextSlot >= NUM_TOWERS) return;
         // Always show 4 choices: 1 correct, 3 incorrect (from unused numbers or, if not enough, from all except correct)
-        let correct = this.nextSlot + 1;
+        let correct = NUM_TOWERS - this.nextSlot;
         let unused = this.availableNumbers.filter(n => n !== correct);
-        let pool = unused.length >= 3 ? unused : [1,2,3,4,5].filter(n => n !== correct);
+        let pool = unused.length >= 3 ? unused : Array.from({length: NUM_TOWERS}, (_, i) => NUM_TOWERS - i).filter(n => n !== correct);
         let incorrects = Phaser.Utils.Array.Shuffle(pool).slice(0, 3);
         let choices;
         // Ensure choices are not in the same order as last round
@@ -109,12 +114,22 @@ function create() {
                     this.placeTower(this.nextSlot, num);
                     this.nextSlot++;
                     this.availableNumbers = this.availableNumbers.filter(n => n !== num);
-                    // Hide all slots, show only the next one
-                    this.slotLines.forEach((slot, idx) => slot.setAlpha(idx === this.nextSlot ? 1 : 0));
+                    // Update slot colors: active slot is orange, others are blue and dimmed
+                    this.slotLines.forEach((slot, idx) => {
+                        if (idx === this.nextSlot) {
+                            slot.setStrokeStyle(6, 0xFFA500); // Orange
+                            slot.setAlpha(1);
+                        } else if (idx > this.nextSlot) {
+                            slot.setStrokeStyle(6, 0x2196f3); // Blue
+                            slot.setAlpha(0.3);
+                        } else {
+                            slot.setAlpha(0); // Hide slot where tower is placed
+                        }
+                    });
                     this.showMessage('Nice!', 'success');
                     // Disable all buttons after correct answer
                     btnRefs.forEach(b => b.onclick = null);
-                    if (this.nextSlot === 5) {
+                    if (this.nextSlot === NUM_TOWERS) {
                         setTimeout(() => {
                             this.showMessage('Stairs completed!', 'success');
                             document.getElementById('reset-button').style.display = 'inline-block';
@@ -138,16 +153,17 @@ function create() {
 
     this.placeTower = (slotIndex, height) => {
         // Draw the tower at the slot
-        const trayTotalWidth = (5 - 1) * SLOT_X_GAP;
-        const trayStartX = config.width / 2 - trayTotalWidth / 2;
+        const trayTotalWidth = (NUM_TOWERS - 1) * SLOT_X_GAP;
+        const trayStartX = config.width / 2.066 - trayTotalWidth / 2 + SLOT_X_OFFSET;
         let group = this.add.container(0, 0);
+        let color = (slotIndex % 2 === 0) ? Phaser.Display.Color.HexStringToColor(TOWER_COLOR_1).color : Phaser.Display.Color.HexStringToColor(TOWER_COLOR_2).color;
         for (let j = 0; j < height; j++) {
             let block = this.add.rectangle(
                 0,
                 -j * TOWER_UNIT,
                 TOWER_WIDTH,
                 TOWER_UNIT,
-                Phaser.Display.Color.HexStringToColor(TOWER_COLOR).color
+                color
             ).setStrokeStyle(2, 0x888888);
             group.add(block);
         }
@@ -161,17 +177,17 @@ function create() {
             }
         });
         // Show kiki.png on the last placed correct tower (move down 40px)
-        const kikiHeight = 40;
-        const kikiY = -height * TOWER_UNIT - 5 - kikiHeight / 2 - 40; // original
-        const kiki = this.add.image(0, kikiY + 40, 'kiki'); // move down 40px
+        const kikiHeight = 10;
+        const kikiY = -height * TOWER_UNIT - 5 - kikiHeight / 2 - 40;
+        const kiki = this.add.image(0, kikiY + 40, 'kiki');
         kiki.setOrigin(0.5, 0.5);
-        kiki.setDisplaySize(65, 65);
+        kiki.setDisplaySize(50, 50);
         group.add(kiki);
         group.setData && group.setData('kikiSprite', kiki);
-        // Make every tower green
+        // Make every tower green (for win effect, keep this for now)
         group.list.forEach(block => {
             if (block instanceof Phaser.GameObjects.Rectangle) {
-                block.setFillStyle(TOWER_COLOR_CORRECT);
+                // block.setFillStyle(TOWER_COLOR_CORRECT); // Comment out if you want only alternating colors
             }
         });
         this.placed[slotIndex] = group;
@@ -183,7 +199,7 @@ function create() {
         el.className = type;
         el.style.opacity = 1;
         if (this._fadeMsgTimeout) clearTimeout(this._fadeMsgTimeout);
-        if (type === 'success' && this.nextSlot < 5) {
+        if (type === 'success' && this.nextSlot < NUM_TOWERS) {
             this._fadeMsgTimeout = setTimeout(() => {
                 el.style.transition = 'opacity 0.3s';
                 el.style.opacity = 0;

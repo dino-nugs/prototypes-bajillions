@@ -1,0 +1,93 @@
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+.game-container {
+    text-align: center;
+    margin-top: 30px;
+}
+
+#phaser-game {
+    width: 800px;
+    height: 400px;
+    margin: 0 auto 10px auto;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.controls {
+    margin-top: 10px;
+}
+
+#reset-button {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+#reset-button:hover {
+    background-color: #45a049;
+}
+
+#message {
+    margin-top: 10px;
+    font-size: 18px;
+    min-height: 24px;
+}
+
+.success {
+    color: #4CAF50;
+}
+
+.error {
+    color: #f44336;
+}
+
+#mc-buttons button {
+    border-radius: 16px !important;
+    width: 70px !important;
+    height: 70px !important;
+    font-size: 32px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 2px solid #2196f3;
+    background: #fff;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 4px;
+}
+#mc-buttons button:hover {
+    background: #e3f2fd;
+    box-shadow: 0 4px 16px rgba(33,150,243,0.10);
+}
+#mc-buttons button.shake {
+    animation: shake 0.4s;
+}
+#mc-buttons button.dim {
+    opacity: 0.4;
+    pointer-events: none;
+    filter: grayscale(0.7);
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-10px); }
+    80% { transform: translateX(10px); }
+    100% { transform: translateX(0); }
+} 
