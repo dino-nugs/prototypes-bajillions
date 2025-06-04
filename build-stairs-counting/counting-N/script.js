@@ -140,34 +140,54 @@ Phaser.Scene.prototype.showNextChoices = function() {
             // Stay on the same difficulty level, generate a new layout
             setTimeout(() => {
                 this.setupLevel();
-            }, layoutTransitionDuration); // Use the common layout transition duration
+            }, layoutTransitionDuration);
         } else {
             // Two layouts for this difficulty completed, try to advance to next difficulty
-            this.layoutsCompletedThisLevel = 0; // Reset for the next difficulty tier
+            this.layoutsCompletedThisLevel = 0;
             this.currentLevelIndex++;
             if (this.currentLevelIndex >= levels.length) {
                 this.showMessage('All levels completed!', 'success');
                 document.getElementById('reset-button').style.display = 'inline-block';
             } else {
-                // Move to the next difficulty tier
-                setTimeout(() => this.setupLevel(), layoutTransitionDuration); // Use the common layout transition duration
+                setTimeout(() => this.setupLevel(), layoutTransitionDuration);
             }
         }
-        return; // Important: Stop further execution for this turn as we are transitioning/ending
+        return;
     }
 
     // If the layout is NOT complete, proceed to show choices for the next missing tower
     const targetSlotIndex = this.missingTowerIndices[this.currentMissingTowerIdxToFill];
     const correctAnswer = this.fullStaircase[targetSlotIndex];
 
-    let choicesPool = Array.from({ length: level.range }, (_, i) => i + 1).filter(n => n !== correctAnswer);
-    let incorrectAnswers = Phaser.Utils.Array.Shuffle(choicesPool).slice(0, 3);
-    let choices = Phaser.Utils.Array.Shuffle([correctAnswer, ...incorrectAnswers]);
+    let choices;
+    if (correctAnswer === 1) {
+        // Special case for when correct answer is 1
+        choices = [1, 2, 3, 4, 5];
+    } else {
+        // For other cases, use N-2, N-1, N, N+1, N+2 pattern
+        choices = [correctAnswer - 2, correctAnswer - 1, correctAnswer, correctAnswer + 1, correctAnswer + 2];
+    }
 
-    // Ensure choices are not in the same order as last round
+    // Shuffle choices ensuring no number stays in the same position
+    let shuffled;
     do {
-        choices = Phaser.Utils.Array.Shuffle([correctAnswer, ...incorrectAnswers]);
-    } while (this.lastChoices.length && choices.every((v, i) => v === this.lastChoices[i]) && choices.length > 1);
+        shuffled = Phaser.Utils.Array.Shuffle(choices);
+        // Check if any number is in the same position as last time
+        let hasSamePosition = false;
+        if (this.lastChoices.length) {
+            for (let i = 0; i < shuffled.length; i++) {
+                if (shuffled[i] === this.lastChoices[i]) {
+                    hasSamePosition = true;
+                    break;
+                }
+            }
+        }
+        if (!hasSamePosition) {
+            choices = shuffled;
+            break;
+        }
+    } while (true);
+
     this.lastChoices = choices.slice();
 
     const btnRefs = [];
@@ -177,17 +197,15 @@ Phaser.Scene.prototype.showNextChoices = function() {
         btn.onclick = () => {
             if (num === correctAnswer) {
                 btnRefs.forEach(b => { if (b !== btn) b.classList.add('dim'); });
-                this.placeTower(targetSlotIndex, correctAnswer, true, null, level.range); // trayStartX and numTowers for consistency
+                this.placeTower(targetSlotIndex, correctAnswer, true, null, level.range);
                 this.currentMissingTowerIdxToFill++;
                 this.showMessage('Nice!', 'success');
                 btnRefs.forEach(b => b.onclick = null);
 
-                // After placing a tower, immediately check if this completes the current layout
-                // This will trigger the layout/level advancement logic at the start of the next showNextChoices call
                 setTimeout(() => this.showNextChoices(), layoutTransitionDuration);
             } else {
                 btn.classList.remove('shake');
-                void btn.offsetWidth; // Reflow
+                void btn.offsetWidth;
                 btn.classList.add('shake');
                 this.showMessage('Try Again', 'error');
             }

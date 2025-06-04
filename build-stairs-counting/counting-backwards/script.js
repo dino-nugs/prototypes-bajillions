@@ -88,16 +88,38 @@ function create() {
     this.showNextChoices = () => {
         btnContainer.innerHTML = '';
         if (this.nextSlot >= NUM_TOWERS) return;
-        // Always show 4 choices: 1 correct, 3 incorrect (from unused numbers or, if not enough, from all except correct)
+        
         let correct = NUM_TOWERS - this.nextSlot;
-        let unused = this.availableNumbers.filter(n => n !== correct);
-        let pool = unused.length >= 3 ? unused : Array.from({length: NUM_TOWERS}, (_, i) => NUM_TOWERS - i).filter(n => n !== correct);
-        let incorrects = Phaser.Utils.Array.Shuffle(pool).slice(0, 3);
         let choices;
-        // Ensure choices are not in the same order as last round
+        
+        if (correct === 1) {
+            // Special case for when correct answer is 1
+            choices = [1, 2, 3, 4, 5];
+        } else {
+            // For other cases, use N-2, N-1, N, N+1, N+2 pattern
+            choices = [correct - 2, correct - 1, correct, correct + 1, correct + 2];
+        }
+        
+        // Shuffle choices ensuring no number stays in the same position
+        let shuffled;
         do {
-            choices = Phaser.Utils.Array.Shuffle([correct, ...incorrects]);
-        } while (this.lastChoices.length && choices.every((v, i) => v === this.lastChoices[i]));
+            shuffled = Phaser.Utils.Array.Shuffle(choices);
+            // Check if any number is in the same position as last time
+            let hasSamePosition = false;
+            if (this.lastChoices.length) {
+                for (let i = 0; i < shuffled.length; i++) {
+                    if (shuffled[i] === this.lastChoices[i]) {
+                        hasSamePosition = true;
+                        break;
+                    }
+                }
+            }
+            if (!hasSamePosition) {
+                choices = shuffled;
+                break;
+            }
+        } while (true);
+        
         this.lastChoices = choices.slice();
         const btnRefs = [];
         choices.forEach(num => {

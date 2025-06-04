@@ -84,22 +84,32 @@ function create() {
     this.showNextChoices = () => {
         btnContainer.innerHTML = '';
         if (this.nextSlot >= 5) return;
-        // Always show 4 choices: 1 correct, 3 incorrect (from unused numbers or, if not enough, from all except correct)
-        let correct = this.nextSlot + 1;
-        let unused = this.availableNumbers.filter(n => n !== correct);
-        let pool = unused.length >= 3 ? unused : [1,2,3,4,5].filter(n => n !== correct);
-        let incorrects = Phaser.Utils.Array.Shuffle(pool).slice(0, 3);
-        let choices;
-        // Ensure choices are not in the same order as last round
-        do {
-            choices = Phaser.Utils.Array.Shuffle([correct, ...incorrects]);
-        } while (this.lastChoices.length && choices.every((v, i) => v === this.lastChoices[i]));
-        this.lastChoices = choices.slice();
+        
+        // Show all 5 choices in order from 1 to 5
+        const choices = [1, 2, 3, 4, 5];
         const btnRefs = [];
         choices.forEach(num => {
             let btn = document.createElement('button');
-            btn.textContent = num;
+            btn.style.display = 'flex';
+            btn.style.flexDirection = 'column';
+            btn.style.alignItems = 'center';
+            btn.style.justifyContent = 'center';
+            btn.style.padding = '16px 16px';
+            btn.style.minWidth = '110px';
+            btn.style.minHeight = '210px';
+            btn.style.fontSize = '22px';
+            btn.style.fontWeight = 'bold';
+            btn.style.gap = '4px';
+            // Add the grid of dots
+            btn.appendChild(createDotGrid(num));
+            // Add the numeral below the grid
+            const label = document.createElement('span');
+            label.textContent = num;
+            label.style.marginTop = '6px';
+            label.style.fontSize = '22px';
+            btn.appendChild(label);
             btn.onclick = () => {
+                const correct = this.nextSlot + 1;
                 if (num === correct) {
                     // Dim incorrect choices
                     btnRefs.forEach(b => {
@@ -218,4 +228,40 @@ function create() {
     this.showNextChoices();
 }
 
-function update() {} 
+function update() {}
+
+// Helper to create a 5x2 grid (rotated 90 degrees) with n dots, filling top-to-bottom by column
+function createDotGrid(n) {
+    const grid = document.createElement('div');
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = 'repeat(2, 29px)'; // 2 columns (vertical, 90% of 32px)
+    grid.style.gridTemplateRows = 'repeat(5, 29px)';    // 5 rows
+    grid.style.gap = '0';
+    grid.style.width = '58px'; // 90% of 64px
+    grid.style.height = '145px'; // 90% of 160px
+    grid.style.margin = '10px auto 2px auto'; // Move grid down by 10px, only 2px below grid
+    for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 2; col++) {
+            const cell = document.createElement('div');
+            cell.style.width = '29px';
+            cell.style.height = '29px';
+            cell.style.display = 'flex';
+            cell.style.alignItems = 'center';
+            cell.style.justifyContent = 'center';
+            cell.style.border = '1px solid #222';
+            cell.style.boxSizing = 'border-box';
+            // Dot index for top-to-bottom, then next column
+            const dotIndex = col * 5 + row;
+            if (dotIndex < n) {
+                const dot = document.createElement('div');
+                dot.style.width = '20px'; // 90% of 22px
+                dot.style.height = '20px';
+                dot.style.borderRadius = '50%';
+                dot.style.background = '#111';
+                cell.appendChild(dot);
+            }
+            grid.appendChild(cell);
+        }
+    }
+    return grid;
+} 
